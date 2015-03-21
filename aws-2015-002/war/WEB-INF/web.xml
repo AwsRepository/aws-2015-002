@@ -10,15 +10,24 @@
     <servlet-name>greetServlet</servlet-name>
     <servlet-class>es.us.aws.server.GreetingServiceImpl</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>MovieServlet</servlet-name>
+    <servlet-class>es.us.aws.MovieServlet</servlet-class>
+  </servlet>
   
   <servlet-mapping>
     <servlet-name>greetServlet</servlet-name>
     <url-pattern>/aws_2015_002/greet</url-pattern>
   </servlet-mapping>
+    
+  <servlet-mapping>
+    <servlet-name>MovieServlet</servlet-name>
+    <url-pattern>/movies/*</url-pattern>
+  </servlet-mapping>
   
   <!-- Default page to serve -->
   <welcome-file-list>
-    <welcome-file>Aws_2015_002.html</welcome-file>
+    <welcome-file>index.html</welcome-file>
   </welcome-file-list>
 
 </web-app>
