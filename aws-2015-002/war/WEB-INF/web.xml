@@ -14,6 +14,10 @@
     <servlet-name>MovieServlet</servlet-name>
     <servlet-class>es.us.aws.MovieServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>SeriesServlet</servlet-name>
+    <servlet-class>es.us.aws.SeriesServlet</servlet-class>
+  </servlet>
   
   <servlet-mapping>
     <servlet-name>greetServlet</servlet-name>
@@ -23,6 +27,10 @@
   <servlet-mapping>
     <servlet-name>MovieServlet</servlet-name>
     <url-pattern>/movies/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SeriesServlet</servlet-name>
+    <url-pattern>/series/*</url-pattern>
   </servlet-mapping>
   
   <!-- Default page to serve -->
