@@ -20,11 +20,11 @@
   <!-- Other module inherits                                      -->
 
   <!-- Specify the app entry point class.                         -->
-  <entry-point class='es.us.aws.client.Aws_2015_002'/>
+<!--   <entry-point class='es.us.aws.client.Aws_2015_002'/> -->
 
   <!-- Specify the paths for translatable code                    -->
-  <source path='client'/>
-  <source path='shared'/>
+<!--   <source path='client'/> -->
+<!--   <source path='shared'/> -->
 
   <!-- allow Super Dev Mode -->
   <add-linker name="xsiframe"/>

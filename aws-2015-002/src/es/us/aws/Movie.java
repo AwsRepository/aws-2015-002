@@ -1,41 +1,29 @@
 package es.us.aws;
 
+import java.util.List;
 
 public class Movie {
 
-	
-	private String titulo;
+	private String title;
 	private String director;
-	private Integer fecha;
-	private Integer duracion;
-	
-
-	
-	public Movie() {
-		titulo=new String();
-		director=new String();
-		fecha= new Integer(0);
-		duracion= new Integer(0);
-	
-	}
-	
-	
-	
-	
-	public Movie(String titulo, String director, Integer fecha, Integer duracion) {
+	private Integer year;
+	private Integer minutes;
+	private List<Actor> actors;
+	public Movie(){}
+	public Movie(String title, String director, Integer year, Integer minutes,
+			List<Actor> actors) {
 		super();
-		this.titulo = titulo;
+		this.title = title;
 		this.director = director;
-		this.fecha = fecha;
-		this.duracion = duracion;
+		this.year = year;
+		this.minutes = minutes;
+		this.actors = actors;
 	}
-
-
-	public String getTitulo() {
-		return titulo;
+	public String getTitle() {
+		return title;
 	}
-	public void setTitulo(String titulo) {
-		this.titulo = titulo;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	public String getDirector() {
 		return director;
@@ -43,16 +31,22 @@ public class Movie {
 	public void setDirector(String director) {
 		this.director = director;
 	}
-	public Integer getFecha() {
-		return fecha;
+	public Integer getYear() {
+		return year;
 	}
-	public void setFecha(Integer fecha) {
-		this.fecha = fecha;
+	public void setYear(Integer year) {
+		this.year = year;
 	}
-	public Integer getDuracion() {
-		return duracion;
+	public Integer getMinutes() {
+		return minutes;
 	}
-	public void setDuracion(Integer duracion) {
-		this.duracion = duracion;
+	public void setMinutes(Integer minutes) {
+		this.minutes = minutes;
+	}
+	public List<Actor> getActors() {
+		return actors;
+	}
+	public void setActors(List<Actor> actors) {
+		this.actors = actors;
 	}
 }

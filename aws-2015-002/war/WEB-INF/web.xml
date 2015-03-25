@@ -6,32 +6,19 @@
          xmlns="http://java.sun.com/xml/ns/javaee">
 
   <!-- Servlets -->
-  <servlet>
-    <servlet-name>greetServlet</servlet-name>
-    <servlet-class>es.us.aws.server.GreetingServiceImpl</servlet-class>
-  </servlet>
-  <servlet>
-    <servlet-name>MovieServlet</servlet-name>
-    <servlet-class>es.us.aws.MovieServlet</servlet-class>
-  </servlet>
+ 
   <servlet>
     <servlet-name>SeriesServlet</servlet-name>
     <servlet-class>es.us.aws.SeriesServlet</servlet-class>
   </servlet>
-  
-  <servlet-mapping>
-    <servlet-name>greetServlet</servlet-name>
-    <url-pattern>/aws_2015_002/greet</url-pattern>
-  </servlet-mapping>
-    
-  <servlet-mapping>
-    <servlet-name>MovieServlet</servlet-name>
-    <url-pattern>/movies/*</url-pattern>
-  </servlet-mapping>
+
+   
+ 
   <servlet-mapping>
     <servlet-name>SeriesServlet</servlet-name>
     <url-pattern>/series/*</url-pattern>
   </servlet-mapping>
+
   
   <!-- Default page to serve -->
   <welcome-file-list>

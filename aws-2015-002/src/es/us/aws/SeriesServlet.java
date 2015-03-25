@@ -2,8 +2,7 @@ package es.us.aws;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,51 +13,66 @@ import com.google.gson.Gson;
 
 public class SeriesServlet extends HttpServlet {
 
-	private static Map<String,Series> series;
+	private static final long serialVersionUID = 2652891130816683939L;
 
-	public void init() throws ServletException {
-		// TODO Auto-generated method stub
-		super.init();
-
-		series = new HashMap<String,Series>();
-		
-		Series s = new Series("Game of thrones","",20,2010);
-		series.put(iniciales(s.name), s);
-		s = new Series("House of cards","",20,2010);
-		series.put(iniciales(s.name), s);
-		s = new Series("Breaking Bad","",20,2010);
-		series.put(iniciales(s.name), s);
-		s = new Series("Big Bang Theory","",20,2010);
-		series.put(iniciales(s.name), s);
-
-
-	}
+//	public void init() throws ServletException {
+//		super.init();
+//
+//		SeriesPersistence.deleteAllSeries();
+//		Series s1 = new Series("Game of thrones","",20,2010);
+//		SeriesPersistence.insertSeries(s1, iniciales(s1.getName()));
+//		Series s2 = new Series("House of cards","",20,2010);
+//		SeriesPersistence.insertSeries(s2, iniciales(s2.getName()));
+//		Series s3 = new Series("Breaking Bad","",20,2010);
+//		SeriesPersistence.insertSeries(s3, iniciales(s3.getName()));
+//		Series s4 = new Series("Big Bang Theory","",20,2010);
+//		SeriesPersistence.insertSeries(s4, iniciales(s4.getName()));
+//		
+//		Actor a = new Actor("Kevin", "Spacey", new Date(), "EEUU");
+//		SeriesPersistence.insertSeriesActor(a, "HOC");
+//
+//
+//	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
 		String uri = req.getRequestURI();
 		String[] uricompoment = uri.split("/");
-
-		if (uricompoment.length > 2) {
-			String s = uricompoment[2];
+		
+		if (uricompoment.length > 2) {//Serie concreta
 			
-			if (series.containsKey(s)) {
-
-				Gson gson2 = new Gson();
-				String jsonString2 = gson2.toJson(series.get(s));
-				resp.setContentType("text/json");
-				resp.getWriter().println(jsonString2);
+			String s = uricompoment[2];//ID de la serie
+			
+			if (SeriesPersistence.existsSeries(s)) {
+				
+				if(uricompoment.length > 3){
+					if (uricompoment[3].equalsIgnoreCase("actors")){
+						//Actores de la serie concreta
+						Gson gson2 = new Gson();
+						String jsonString2 = gson2.toJson(SeriesPersistence.selectSeriesActors(s));
+						resp.setContentType("text/json");
+						resp.getWriter().println(jsonString2);
+					}
+					else{
+						resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+					}
+				}
+				else{ //Datos de serie concreta
+					Gson gson2 = new Gson();
+					String jsonString2 = gson2.toJson(SeriesPersistence.selectSeries(s));
+					resp.setContentType("text/json");
+					resp.getWriter().println(jsonString2);
+				}
 			} 
 			else {
 				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			}
 
 		} 
-		else {
+		else { //Obtiene la lista completa de series
 			
 			Gson gson = new Gson();
-			String jsonString = gson.toJson(series);
-
+			String jsonString = gson.toJson(SeriesPersistence.selectAllSeries());
 			resp.setContentType("text/json");
 			resp.getWriter().println(jsonString);
 		}
@@ -72,9 +86,41 @@ public class SeriesServlet extends HttpServlet {
 		String[] uricompoment = uri.split("/");
 
 		if (uricompoment.length > 2) {	
-			resp.sendError(HttpServletResponse.SC_NOT_FOUND);
-		} 
-		else {
+			
+			String s = uricompoment[2];//ID de la serie
+			
+			if (SeriesPersistence.existsSeries(s)) {
+				if(uricompoment.length > 3){
+					if(uricompoment[3].equalsIgnoreCase("actors")){
+						//Añadir actor a la serie
+						Actor a = new Actor();
+						Gson gson = new Gson();
+						StringBuilder sb = new StringBuilder();
+						BufferedReader br = req.getReader();
+						String jsonString;
+						while ((jsonString = br.readLine()) != null) {
+							sb.append(jsonString);
+						}
+
+						jsonString = sb.toString();
+						
+						a = gson.fromJson(jsonString, Actor.class);
+						
+						SeriesPersistence.insertSeriesActor(a, s);
+						
+					}
+					else{
+						resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+					}
+				}
+				else{
+					resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+				}
+			
+			}
+		}
+		 
+		else {//Crear nueva serie
 
 			Series s = new Series();
 			Gson gson = new Gson();
@@ -89,10 +135,10 @@ public class SeriesServlet extends HttpServlet {
 			
 			s = gson.fromJson(jsonString, Series.class);
 			
-			String iniciales=iniciales(s.name)+"("+String.valueOf(s.year)+")";
+			String iniciales=iniciales(s.name);
 			
-			if(!series.containsKey(iniciales)){
-				series.put(iniciales, s);
+			if(!SeriesPersistence.existsSeries(iniciales)){
+				SeriesPersistence.insertSeries(s, iniciales);
 			}
 			else{
 				resp.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -110,33 +156,40 @@ public class SeriesServlet extends HttpServlet {
 		String[] uricompoment = uri.split("/");
 
 		if (uricompoment.length > 2) {
-			String clave = uricompoment[2];
-
-			if (series.containsKey(clave)) {
-
-				Gson gson2 = new Gson();
-				String jsonString2 = gson2.toJson(series.get(clave));
-
-				series.remove(clave);
-				
-				//???Se devolveria
-				resp.setContentType("text/json");
-				resp.getWriter().println(jsonString2);
-
-			} else {
-				// No existe recurso
-				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+			String key = uricompoment[2];
+			if(uricompoment.length > 3){
+				if(uricompoment[3].equalsIgnoreCase("actors")){
+					if (SeriesPersistence.existsSeries(key)) {
+						SeriesPersistence.deleteSeriesActors(key);
+					}
+					else{
+						resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+					}
+				}
+				else{
+					resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+				}
 			}
+			else{
+				if (SeriesPersistence.existsSeries(key)) {
 
-		} else {
-			// Rama para Get total
-			Gson gson = new Gson();
-			String jsonString = gson.toJson(series);
 
-			//Se queda vacia la lista de peliculas
-			series.clear();
+				SeriesPersistence.deleteSeries(key);
+
+
+				} else {
+					resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+				}
+			}
+		} 
+		else {
 			
-			//???Se devuelven todas las peliculas que se han borrado
+			Gson gson = new Gson();
+			String jsonString = gson.toJson(SeriesPersistence.selectAllSeries());
+
+			//Se queda vacia la lista de series
+			SeriesPersistence.deleteAllSeries();	
+
 			resp.setContentType("text/json");
 			resp.getWriter().println(jsonString);
 		}
@@ -149,9 +202,9 @@ public class SeriesServlet extends HttpServlet {
 		String[] uricompoment = uri.split("/");
 
 		if (uricompoment.length > 2) {
-			String clave = uricompoment[2];
+			String key = uricompoment[2];
 
-			if (series.containsKey(clave)){
+			if (SeriesPersistence.existsSeries(key)){
 				
 				Series s = new Series();
 				Gson gson = new Gson();
@@ -165,15 +218,15 @@ public class SeriesServlet extends HttpServlet {
 				jsonString = sb.toString();
 				s = gson.fromJson(jsonString, Series.class);
 				
-				series.put(clave,s);
+				SeriesPersistence.updateSeries(s, key);
 				
 
 			} else {
-				resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
 			}
 
 		} 
-		else {
+		else{
 			resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 		}	
 	}
@@ -186,5 +239,4 @@ public class SeriesServlet extends HttpServlet {
 		}
 		return iniciales;
 	}
-	
 }
