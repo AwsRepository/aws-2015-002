@@ -110,12 +110,11 @@ public class SeriesServlet extends HttpServlet {
 						
 					}
 					else{
-						resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+						resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
 					}
 				}
 				else{
-					resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-				}
+					resp.setStatus(HttpServletResponse.SC_FORBIDDEN);				}
 			
 			}
 		}
@@ -141,11 +140,10 @@ public class SeriesServlet extends HttpServlet {
 				SeriesPersistence.insertSeries(s, iniciales);
 			}
 			else{
-				resp.sendError(HttpServletResponse.SC_FORBIDDEN);
-			}
+				resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				}
 			
-			resp.setContentType("text/json");
-			resp.getWriter().println(jsonString);
+			
 		}
 	}
 
@@ -163,11 +161,11 @@ public class SeriesServlet extends HttpServlet {
 						SeriesPersistence.deleteSeriesActors(key);
 					}
 					else{
-						resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+						resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 					}
 				}
 				else{
-					resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+					resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 				}
 			}
 			else{
@@ -178,7 +176,7 @@ public class SeriesServlet extends HttpServlet {
 
 
 				} else {
-					resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+					resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 				}
 			}
 		} 
@@ -190,8 +188,6 @@ public class SeriesServlet extends HttpServlet {
 			//Se queda vacia la lista de series
 			SeriesPersistence.deleteAllSeries();	
 
-			resp.setContentType("text/json");
-			resp.getWriter().println(jsonString);
 		}
 		
 	}
@@ -222,12 +218,12 @@ public class SeriesServlet extends HttpServlet {
 				
 
 			} else {
-				resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+				resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
 			}
 
 		} 
 		else{
-			resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+			resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 		}	
 	}
 	

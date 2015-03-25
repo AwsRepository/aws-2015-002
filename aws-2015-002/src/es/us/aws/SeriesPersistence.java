@@ -11,10 +11,12 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 
 public class SeriesPersistence {
 	
+	
+	//TODO no devolver HTML, error conflict si existe en post, 
+	
 	public static void insertSeries(Series s, String key){
-		Key seriesKey = KeyFactory.createKey("Series", key);
+		Key seriesKey = KeyFactory.createKey("Series", s.getName());
 	    Entity series = new Entity("Series", seriesKey);
-	    series.setProperty("key", key);
 	    series.setProperty("name", s.getName());
 	    series.setProperty("director", s.getDirector());
 	    series.setProperty("episodes", s.getEpisodes());
@@ -52,17 +54,18 @@ public class SeriesPersistence {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    Query query = new Query("Series");
 	    PreparedQuery pq = datastore.prepare(query);
-		Iterator<Entity> it = pq.asIterator();
+		Iterable <Entity> it = pq.asIterable();
 		List<Series> series = new LinkedList<Series>();
-		Series s = new Series();
-		while(it.hasNext()){
-			Entity e = it.next();
+		
+		for(Entity e:it){
+			Series s = new Series();
 			s.setName((String) e.getProperty("name"));
 			s.setDirector((String) e.getProperty("director"));
 			s.setEpisodes( (int) (long) e.getProperty("episodes"));
 			s.setYear((int) (long) e.getProperty("year"));
 			series.add(s);
 		}
+		
 		return series;
 	    
 	}
@@ -102,8 +105,8 @@ public class SeriesPersistence {
 		Query query = new Query("Actor").setAncestor(seriesKey);
 		PreparedQuery pq = datastore.prepare(query);
 		Iterator<Entity> it = pq.asIterator();
-		Actor a = new Actor();
 		while(it.hasNext()){
+			Actor a = new Actor();
 			Entity e = it.next();
 			a = new Actor();
 			a.setName((String) e.getProperty("name"));
