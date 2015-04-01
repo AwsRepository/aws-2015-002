@@ -2,7 +2,6 @@ package es.us.aws;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -183,7 +182,7 @@ public class SeriesServlet extends HttpServlet {
 		else {
 			
 			Gson gson = new Gson();
-			String jsonString = gson.toJson(SeriesPersistence.selectAllSeries());
+			gson.toJson(SeriesPersistence.selectAllSeries());
 
 			//Se queda vacia la lista de series
 			SeriesPersistence.deleteAllSeries();	
