@@ -1,0 +1,22 @@
+Template goldPlanT version 1.0
+	Initiator: "Series Online";
+	Provider "Series Online" as Responder;
+	Metrics:
+		price: integer [0..500];
+		readOnly: boolean;
+        req: integer[0..10000];
+
+AgreementTerms
+	Service SeriesAPI availableAt "http://localhost/series"
+		GlobalDescription
+			PlanPrice: price = 99;
+			PlanReadOnly: readOnly = false;
+
+	MonitorableProperties
+		global:
+			Requests: req = 0;
+
+	GuaranteeTerms
+		RequestTerm: Consumer guarantees Requests >=0;
+
+EndTemplate

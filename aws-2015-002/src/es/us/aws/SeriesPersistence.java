@@ -14,7 +14,7 @@ public class SeriesPersistence {
 	
 	//TODO no devolver HTML, error conflict si existe en post, 
 	
-	public static void insertSeries(Series s, String key){
+	public static void insertSeries(Serie s, String key){
 		Key seriesKey = KeyFactory.createKey("Series", s.getName());
 	    Entity series = new Entity("Series", seriesKey);
 	    series.setProperty("name", s.getName());
@@ -26,13 +26,13 @@ public class SeriesPersistence {
 	    datastore.put(series); 
 	}
 	
-	public static Series selectSeries(String key){
+	public static Serie selectSeries(String key){
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    Key seriesKey = KeyFactory.createKey("Series", key);
 	    Query query = new Query("Series", seriesKey);
 	    PreparedQuery pq = datastore.prepare(query);
 		Entity e = pq.asSingleEntity();
-	    Series series = new Series();
+	    Serie series = new Serie();
 	    series.setName((String) e.getProperty("name"));
 		series.setDirector((String) e.getProperty("director"));
 		series.setEpisodes( (int)(long) e.getProperty("episodes"));
@@ -50,15 +50,15 @@ public class SeriesPersistence {
 	 
 	}
 	
-	public static List<Series> selectAllSeries(){
+	public static List<Serie> selectAllSeries(){
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    Query query = new Query("Series");
 	    PreparedQuery pq = datastore.prepare(query);
 		Iterable <Entity> it = pq.asIterable();
-		List<Series> series = new LinkedList<Series>();
+		List<Serie> series = new LinkedList<Serie>();
 		
 		for(Entity e:it){
-			Series s = new Series();
+			Serie s = new Serie();
 			s.setName((String) e.getProperty("name"));
 			s.setDirector((String) e.getProperty("director"));
 			s.setEpisodes( (int) (long) e.getProperty("episodes"));
@@ -70,7 +70,7 @@ public class SeriesPersistence {
 	    
 	}
 	
-	public static void updateSeries(Series s, String key){
+	public static void updateSeries(Serie s, String key){
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("Series");
 		FilterPredicate filtro = new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, key);

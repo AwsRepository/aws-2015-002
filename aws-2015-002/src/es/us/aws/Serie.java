@@ -1,16 +1,16 @@
 package es.us.aws;
 
-public class Series {
+public class Serie {
 
 	String name;
 	String director;
 	int episodes;  
 	int year;
 	
-	public Series(){
+	public Serie(){
 	}
 	
-	public Series(String name, String director, int episodes, int year) {
+	public Serie(String name, String director, int episodes, int year) {
 		super();
 		this.name = name;
 		this.director = director;

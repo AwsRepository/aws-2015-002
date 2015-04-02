@@ -9,15 +9,35 @@
  
   <servlet>
     <servlet-name>SeriesServlet</servlet-name>
-    <servlet-class>es.us.aws.SeriesServlet</servlet-class>
+    <servlet-class>es.us.servlets.SeriesServlet</servlet-class>
   </servlet>
-
-   
- 
   <servlet-mapping>
     <servlet-name>SeriesServlet</servlet-name>
     <url-pattern>/series/*</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>AgreementsServlet</servlet-name>
+    <servlet-class>es.us.servlets.AgreementsServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AgreementsServlet</servlet-name>
+    <url-pattern>/agreements/*</url-pattern>
+  </servlet-mapping>
+  
+  <!--Filters-->
+
+    <filter>
+        <filter-name>AgreementFilter_AML</filter-name>
+        <filter-class>es.us.filters.AgreementFilter</filter-class>
+    </filter>
+    
+    <filter-mapping>
+        <filter-name>AgreementFilter_AML</filter-name>
+        <url-pattern>/series/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
 
   
   <!-- Default page to serve -->

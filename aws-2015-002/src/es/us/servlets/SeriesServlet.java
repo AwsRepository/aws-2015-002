@@ -1,4 +1,4 @@
-package es.us.aws;
+package es.us.servlets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+
+import es.us.aws.Actor;
+import es.us.aws.Serie;
+import es.us.aws.SeriesPersistence;
 
 public class SeriesServlet extends HttpServlet {
 
@@ -120,7 +124,7 @@ public class SeriesServlet extends HttpServlet {
 		 
 		else {//Crear nueva serie
 
-			Series s = new Series();
+			Serie s = new Serie();
 			Gson gson = new Gson();
 			StringBuilder sb = new StringBuilder();
 			BufferedReader br = req.getReader();
@@ -131,9 +135,9 @@ public class SeriesServlet extends HttpServlet {
 
 			jsonString = sb.toString();
 			
-			s = gson.fromJson(jsonString, Series.class);
+			s = gson.fromJson(jsonString, Serie.class);
 			
-			String iniciales=iniciales(s.name);
+			String iniciales=iniciales(s.getName());
 			
 			if(!SeriesPersistence.existsSeries(iniciales)){
 				SeriesPersistence.insertSeries(s, iniciales);
@@ -201,7 +205,7 @@ public class SeriesServlet extends HttpServlet {
 
 			if (SeriesPersistence.existsSeries(key)){
 				
-				Series s = new Series();
+				Serie s = new Serie();
 				Gson gson = new Gson();
 				StringBuilder sb = new StringBuilder();
 				BufferedReader br = req.getReader();
@@ -211,7 +215,7 @@ public class SeriesServlet extends HttpServlet {
 				}
 
 				jsonString = sb.toString();
-				s = gson.fromJson(jsonString, Series.class);
+				s = gson.fromJson(jsonString, Serie.class);
 				
 				SeriesPersistence.updateSeries(s, key);
 				
