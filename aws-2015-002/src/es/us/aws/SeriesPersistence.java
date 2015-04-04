@@ -1,47 +1,41 @@
 package es.us.aws;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 
 public class SeriesPersistence {
-	
-	
-	//TODO no devolver HTML, error conflict si existe en post, 
-	
-	public static void insertSeries(Serie s, String key){
-		Key seriesKey = KeyFactory.createKey("Series", s.getName());
-	    Entity series = new Entity("Series", seriesKey);
-	    series.setProperty("name", s.getName());
-	    series.setProperty("director", s.getDirector());
-	    series.setProperty("episodes", s.getEpisodes());
-	    series.setProperty("year", s.getYear());
-	 
+		
+	public static void insertSeries(Series s){
+	    Entity series = seriesToEntity(s);
+
 	    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    datastore.put(series); 
 	}
 	
-	public static Serie selectSeries(String key){
+	public static Series selectSeries(String key){
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    Key seriesKey = KeyFactory.createKey("Series", key);
 	    Query query = new Query("Series", seriesKey);
 	    PreparedQuery pq = datastore.prepare(query);
 		Entity e = pq.asSingleEntity();
-	    Serie series = new Serie();
-	    series.setName((String) e.getProperty("name"));
-		series.setDirector((String) e.getProperty("director"));
-		series.setEpisodes( (int)(long) e.getProperty("episodes"));
-		series.setYear((int) (long)e.getProperty("year"));
+	    Series series = entityToSeries(e);
 		return series;
 	    
 	}
 	
 	public static boolean existsSeries(String key){
+		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    Key seriesKey = KeyFactory.createKey("Series", key);
 	    Query query = new Query("Series", seriesKey);
@@ -50,19 +44,25 @@ public class SeriesPersistence {
 	 
 	}
 	
-	public static List<Serie> selectAllSeries(){
+	public static boolean existsSeriesPost(String key){
+		
+		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+	    Key seriesKey = KeyFactory.createKey("Series", toCamelCase(key));
+	    Query query = new Query("Series", seriesKey);
+	    PreparedQuery pq = datastore.prepare(query);
+		return pq.asSingleEntity()!=null;
+	 
+	}
+	
+	public static List<Series> selectAllSeries(){
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    Query query = new Query("Series");
 	    PreparedQuery pq = datastore.prepare(query);
 		Iterable <Entity> it = pq.asIterable();
-		List<Serie> series = new LinkedList<Serie>();
+		List<Series> series = new LinkedList<Series>();
 		
 		for(Entity e:it){
-			Serie s = new Serie();
-			s.setName((String) e.getProperty("name"));
-			s.setDirector((String) e.getProperty("director"));
-			s.setEpisodes( (int) (long) e.getProperty("episodes"));
-			s.setYear((int) (long) e.getProperty("year"));
+			Series s = entityToSeries(e);
 			series.add(s);
 		}
 		
@@ -70,7 +70,7 @@ public class SeriesPersistence {
 	    
 	}
 	
-	public static void updateSeries(Serie s, String key){
+	public static void updateSeries(Series s, String key){
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("Series");
 		FilterPredicate filtro = new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, key);
@@ -78,8 +78,9 @@ public class SeriesPersistence {
 		PreparedQuery pq = datastore.prepare(query);
 		Entity series = pq.asSingleEntity();
 		
-		series.setProperty("name", s.getName());
-		series.setProperty("director", s.getDirector());
+		series.setProperty("title", s.getTitle());
+		series.setProperty("creator", s.getCreator());
+		series.setProperty("seasons", s.getSeasons());
 		series.setProperty("episodes", s.getEpisodes());
 		series.setProperty("year", s.getYear());
 		
@@ -106,34 +107,28 @@ public class SeriesPersistence {
 		PreparedQuery pq = datastore.prepare(query);
 		Iterator<Entity> it = pq.asIterator();
 		while(it.hasNext()){
-			Actor a = new Actor();
 			Entity e = it.next();
-			a = new Actor();
-			a.setName((String) e.getProperty("name"));
-			a.setSurname((String) e.getProperty("surname"));
-			a.setBirthday( (Date) e.getProperty("birhtday"));
-			a.setCountry( (String) e.getProperty("country"));
+			Actor a = entityToActor(e);
 			actors.add(a);
 		}
 		return actors;
 	}
 	
+	public static void insertSeriesActorInit(Actor a, String key){
+		Entity actor = actorToEntity(a,toCamelCase(key));	 
+	    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+	    datastore.put(actor); 
+	}
+	
 	public static void insertSeriesActor(Actor a, String key){
-		Key seriesKey = KeyFactory.createKey("Series", key);
-		Entity actor = new Entity("Actor", "actor_id", seriesKey);
-		//series.setProperty("key", key);
-		actor.setProperty("name", a.getName());
-		actor.setProperty("surname", a.getSurname());
-		actor.setProperty("date", a.getBirthday());
-		actor.setProperty("country", a.getCountry());
-	 
+		Entity actor = actorToEntity(a,key);	 
 	    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    datastore.put(actor); 
 	}
 	
 	public static void deleteSeriesActor(String aKey, String key){
 		Key seriesKey = KeyFactory.createKey("Series", key);
-		Key actorKey = KeyFactory.createKey("Series", aKey);
+		Key actorKey = KeyFactory.createKey("Actor", aKey);
 		FilterPredicate filtro = new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, actorKey);
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("Actor").setAncestor(seriesKey);
@@ -163,10 +158,63 @@ public class SeriesPersistence {
 		while(it.hasNext()){
 			Entity e = it.next();
 			datastore.delete(e.getKey());
+			//TODO delete Actors
 		}
 	}
 	
+	private static Entity seriesToEntity(Series series){
+		Entity seriesEntity = new Entity("Series", toCamelCase(series.getTitle()));
+		seriesEntity.setProperty("title", series.getTitle());
+		seriesEntity.setProperty("creator", series.getCreator());
+		seriesEntity.setProperty("seasons", series.getEpisodes());
+		seriesEntity.setProperty("episodes", series.getEpisodes());
+		seriesEntity.setProperty("year", series.getYear());
+		return seriesEntity;
+	}
 	
+	private static Series entityToSeries(Entity e){
+		Series s = new Series();
+		s.setTitle((String) e.getProperty("title"));
+		s.setCreator((String) e.getProperty("creator"));
+		s.setSeasons( (int) (long) e.getProperty("seasons"));
+		s.setEpisodes( (int) (long) e.getProperty("episodes"));
+		s.setYear((int) (long) e.getProperty("year"));
+		return s;
+	}
+	
+	private static Entity actorToEntity(Actor actor, String key){
+		Key seriesKey = KeyFactory.createKey("Series", key);
+		Entity actorEntity = new Entity("Actor", toCamelCase(actor.getName()+" "+actor.getSurname()), seriesKey);
+		actorEntity.setProperty("name", actor.getName());
+		actorEntity.setProperty("surname", actor.getSurname());
+		actorEntity.setProperty("gender", actor.getGender());
+		actorEntity.setProperty("year", actor.getYear());
+		actorEntity.setProperty("country", actor.getCountry());
+		return actorEntity;
+	}
+	
+	private static Actor entityToActor(Entity e){
+		Actor a = new Actor();
+		a.setName((String) e.getProperty("name"));
+		a.setSurname((String) e.getProperty("surname"));
+		a.setGender((String) e.getProperty("gender"));
+		a.setYear( (int)(long) e.getProperty("year"));
+		a.setCountry( (String) e.getProperty("country"));
+		return a;
+	}
 
+	static String toCamelCase(String s){
+	   String[] parts = s.split(" ");
+	   String camelCaseString = "";
+	   for (String part : parts){
+	      camelCaseString = camelCaseString + toProperCase(part);
+	   }
+	   return camelCaseString;
+	}
+
+	static String toProperCase(String s) {
+	    return s.substring(0, 1).toUpperCase() +
+	               s.substring(1).toLowerCase();
+	}
 	
 }

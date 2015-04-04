@@ -6,16 +6,18 @@ public class Actor {
 
 	private String name;
 	private String surname;
-	private Date birthday;
+	private String gender;
+	private int year;
 	private String country;
 	
 	public Actor(){};
 	
-	public Actor(String name, String surname, Date birthday, String country) {
+	public Actor(String name, String surname,String gender, int year, String country) {
 		super();
 		this.name = name;
 		this.surname = surname;
-		this.birthday = birthday;
+		this.gender = gender;
+		this.year = year;
 		this.country = country;
 	}
 	public String getName() {
@@ -30,11 +32,17 @@ public class Actor {
 	public void setSurname(String surname) {
 		this.surname = surname;
 	}
-	public Date getBirthday() {
-		return birthday;
+	public String getGender() {
+		return gender;
 	}
-	public void setBirthday(Date birthday) {
-		this.birthday = birthday;
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	public int getYear() {
+		return year;
+	}
+	public void setYear(int year) {
+		this.year = year;
 	}
 	public String getCountry() {
 		return country;
