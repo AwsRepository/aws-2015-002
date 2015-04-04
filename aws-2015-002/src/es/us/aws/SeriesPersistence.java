@@ -11,6 +11,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 
@@ -73,7 +74,8 @@ public class SeriesPersistence {
 	public static void updateSeries(Series s, String key){
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("Series");
-		FilterPredicate filtro = new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, key);
+	    Key seriesKey = KeyFactory.createKey("Series", key);
+		FilterPredicate filtro = new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, seriesKey);
 		query.setFilter(filtro);
 		PreparedQuery pq = datastore.prepare(query);
 		Entity series = pq.asSingleEntity();
@@ -91,7 +93,8 @@ public class SeriesPersistence {
 	
 	public static void deleteSeries(String key){
         DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-		FilterPredicate filtro = new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, key);
+        Key seriesKey = KeyFactory.createKey("Series", key);
+		FilterPredicate filtro = new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, seriesKey);
 		Query query = new Query("Series");
         query.setFilter(filtro);
         PreparedQuery pq = datastore.prepare(query);
@@ -215,6 +218,17 @@ public class SeriesPersistence {
 	static String toProperCase(String s) {
 	    return s.substring(0, 1).toUpperCase() +
 	               s.substring(1).toLowerCase();
+	}
+	
+	public static List paginate(List list, int limit, int offset){
+		int length = list.size();
+		int first = 0;
+		int last = length;
+		if(offset<length)
+			first=offset;
+		if(offset+limit<length)
+			last=offset+limit;
+		return list.subList(first, last);
 	}
 	
 }

@@ -2,6 +2,8 @@ package es.us.servlets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -14,7 +16,6 @@ import com.google.gson.Gson;
 import es.us.aws.Actor;
 import es.us.aws.Series;
 import es.us.aws.SeriesPersistence;
-import es.us.util.Helper;
 
 public class SeriesServlet extends HttpServlet {
 
@@ -129,11 +130,11 @@ public class SeriesServlet extends HttpServlet {
 
 		switch (method){
 	
-			case "PUT" : updateSeries(resource, req, res);; break;
+			case "PUT" : updateSeries(resource, req, res); break;
 	
-			case "GET" : getSeries(resource, req, res);; break;
+			case "GET" : getSeries(resource, req, res); break;
 	
-			case "DELETE" : deleteSeries(resource, req, res);; break;				
+			case "DELETE" : deleteSeries(resource, req, res); break;				
 		}
 	}
 	
@@ -186,7 +187,33 @@ public class SeriesServlet extends HttpServlet {
 	//Listado de series
 	private void getAllSeries(HttpServletRequest req, HttpServletResponse resp){
 		try {
-			String jsonString = gson.toJson(SeriesPersistence.selectAllSeries());
+			
+			
+			List<Series> series = SeriesPersistence.selectAllSeries();
+			int length = series.size();
+			int first = 0;
+			int last = length;
+			
+			int offset =  first;
+			int limit =  last;
+			
+			if(req.getParameter("offset")!=null){
+				offset = Integer.parseInt(req.getParameter("offset"));
+				if (offset<length)
+					first=offset;
+				else
+					first=last;
+			}
+			if(req.getParameter("limit")!=null){
+				limit = Integer.parseInt(req.getParameter("limit"));
+				if (offset+limit<length)
+					last=offset+limit;
+					
+			}
+			
+			
+			String jsonString = gson.toJson(series.subList(first, last));
+			
 			resp.setContentType("text/json");
 			resp.getWriter().println(jsonString);
 		} 
@@ -286,9 +313,30 @@ public class SeriesServlet extends HttpServlet {
 	//Obtiene la lista de actores de la serie
 	private void getActors(String series, HttpServletRequest req, HttpServletResponse res){
 		try{
-			String jsonString2 = gson.toJson(SeriesPersistence.selectSeriesActors(series));
+						
+			List<Actor> actors = SeriesPersistence.selectSeriesActors(series);
+			int length = actors.size();
+			int first = 0;
+			int last = length;
+			
+			int offset =  first;
+			int limit =  last;
+			
+			if(req.getParameter("offset")!=null){
+				offset = Integer.parseInt(req.getParameter("offset"));
+				if (offset<length)
+					first=offset;
+			}
+			if(req.getParameter("limit")!=null){
+				limit = Integer.parseInt(req.getParameter("limit"));
+				if (offset+limit<length)
+					last=offset+limit;
+			}
+			
+			
+			String jsonString = gson.toJson(actors.subList(first, last));
 			res.setContentType("text/json");
-			res.getWriter().println(jsonString2);
+			res.getWriter().println(jsonString);
 		}
 		catch(Exception e){
 			res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -300,4 +348,5 @@ public class SeriesServlet extends HttpServlet {
 	private void deleteActors(String series, HttpServletRequest req, HttpServletResponse res){
 		SeriesPersistence.deleteSeriesActors(series);
 	}
+	   
 }
