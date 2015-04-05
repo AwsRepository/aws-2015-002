@@ -65,12 +65,6 @@ public class SeriesServlet extends HttpServlet {
 	//Métodos HTTP - Copiamos la idea del ejemplo de clase, el código queda mucho más legible
 	
 	public void doGet (HttpServletRequest req, HttpServletResponse res) {
-//		try {
-//			init();
-//		} catch (ServletException e) {
-//			e.printStackTrace();
-//		}
-		
 		process(req,res);
 	}
 	public void doPost(HttpServletRequest req, HttpServletResponse res) {
@@ -91,19 +85,38 @@ public class SeriesServlet extends HttpServlet {
 		log(req.getRequestURI() + " : ["+method+"|"+path+"] ");		
 
 		if (path != null && !path.equals("/")){
-
+			
 			String[] pathComponents = path.split("/");
+			
+			int length = pathComponents.length;
+			
 			String resource = pathComponents[1]; //ID de la Serie
+			
+			//OPERACION SOBRE ACTORES
+			boolean pathError=(length>4 || (length>2 && !pathComponents[2].equalsIgnoreCase("actors")));
+
+			boolean allActors= (length==3 && pathComponents[2].equalsIgnoreCase("actors"));
+			boolean oneActor= (length==4 && pathComponents[2].equalsIgnoreCase("actors"));
+			
+			if(pathError)//Ruta demasiado larga
+			{ 
+				res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				return;
+			}
+			else if (allActors){
+				processActors(method, pathComponents[1] , req, res);
+			}
+			else if (oneActor){
+				processActor(method, pathComponents[3], pathComponents[1] , req, res);
+			}
+			else{
+				processSeries(method, resource, req, res);
+			}	
+				
 			
 			log("Single action over resource '"+resource+"'");	
 			
-			if(pathComponents.length>2 && pathComponents[2].equalsIgnoreCase("actors")){
-				//ACTORES
-				processActors(method, pathComponents[1] , req, res);
-			}
-			else{
-				processSeries(method, pathComponents[1] , req, res);
-			}
+			
 		}
 		else{
 			log("Action over the list of resources");		
@@ -232,7 +245,15 @@ public class SeriesServlet extends HttpServlet {
 			jsonString = sb.toString();
 			s = gson.fromJson(jsonString, Series.class);
 			
-			SeriesPersistence.updateSeries(s, series);
+			if (SeriesPersistence.toCamelCase(s.getTitle()).equals(series)){
+				SeriesPersistence.updateSeries(s, series);
+			}
+			else{
+				res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				return;
+			}
+			
+			
 		}
 		catch(Exception e){
 			res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -265,6 +286,27 @@ public class SeriesServlet extends HttpServlet {
 		}
 	}
 	
+	private void processActor(String method, String actor,String series,
+			HttpServletRequest req, HttpServletResponse res) {
+
+		if(!SeriesPersistence.existsSeries(series) || !SeriesPersistence.existsActor(actor)){
+			res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return;
+		}
+		
+		switch (method){
+	
+			case "POST" : res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED); break;
+			
+			case "PUT" : res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED); break;
+	
+			case "GET" : res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED); break;//getActor(actor,series,req,res); break;
+	
+			case "DELETE" : res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED); break;//deleteActor(series,req,res); break;			
+		}
+	}
+	
+	
 	//Añade un nuevo actor a la serie
 	private void postActor(String series, HttpServletRequest req, HttpServletResponse res){
 		try{
@@ -280,7 +322,15 @@ public class SeriesServlet extends HttpServlet {
 			
 			a = gson.fromJson(jsonString, Actor.class);
 			
-			SeriesPersistence.insertSeriesActor(a, series);
+			
+			if(!SeriesPersistence.existsActorPost(a, series)){
+				SeriesPersistence.insertSeriesActor(a, series);
+			}
+			else{
+				res.setStatus(HttpServletResponse.SC_CONFLICT);
+			}
+			
+			
 		}
 		catch(Exception e){
 			res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -303,6 +353,7 @@ public class SeriesServlet extends HttpServlet {
 			return;
 		}
 	}
+
 	
 	//Borra todos los actores de la serie
 	private void deleteActors(String series, HttpServletRequest req, HttpServletResponse res){

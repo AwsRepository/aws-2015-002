@@ -1,0 +1,457 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Series server - Gr. 2 - AWS 2015",
+        "version": "1.0.0",
+        "title": "Series API",
+        "termsOfService": "http://aws-002.appspot.com/agreements",
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "host": "aws-002.appspot.com",
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/series": {
+          "get": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "List of Series",
+                "description": "Returns a JSON of Series",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters":[
+                	{
+                        "in": "query",
+                        "name": "user",
+                        "description": "Subscription",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the number of results returned",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Skip that many results before",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "in": "query",
+                        "name": "withActors",
+                        "description": "Include only series with actors registered (true) or without actors (false)",
+                        "required": false,
+                        "type":"string",
+                        "default":"",
+                        "enum":["","true","false"]
+                    },
+                    {
+                        "in": "query",
+                        "name": "from",
+                        "description": "Release year",
+                        "required": false,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Series"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Add a new Series",
+                "description": "",
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                	{
+                        "in": "query",
+                        "name": "user",
+                        "description": "Subscription",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Series JSON Object",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Series"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Succesful operation"
+                    },
+                    "409": {
+                        "description": "Conflict"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Delete all Series",
+                "description": "", 
+                "parameters": [
+                	{
+                        "in": "query",
+                        "name": "user",
+                        "description": "Subscription",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                },
+                
+            }
+        },
+        "/series/{seriesid}": {
+            "get": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Get Series",
+                "description": "Return a Series JSON Object with the information about the Series with the specified ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Subscription",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Series ID - Title of the series in CamelCase format",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Series"
+                        }
+                    },
+                    "404": {
+                        "description": "Series not found"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Update series",
+                "description": "Update the Series with the specified ID",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Subscription",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Series ID - Title of the series in CamelCase format",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Series JSON Object",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Series"
+                        }
+                    }
+                ],
+                "responses": {
+                  	"200": {
+                        "description": "Successful operation"
+                        },
+                    "404": {
+                        "description": "Series not found"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Delete series",
+                "description": "Delete the Series with the specified ID",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Subscription",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Series ID - Title of the series in CamelCase format",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                        },
+                    "404": {
+                        "description": "Series not found"
+                    }
+                }
+            }
+        }
+        ,
+        "/series/{seriesid}/actors": {
+            "get": {
+                "tags": [
+                    "series",
+                    "actors"
+                ],
+                "summary": "Full cast",
+                "description": "Return all the actors of the Series with the specified ID",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Subscription",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Series ID - Title of the series in CamelCase format",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Limit the number of results returned",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Skip that many results before",
+                        "required": false,
+                        "type": "number"
+                    },
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Actor"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Series not found"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "series",
+                    "actors"
+                ],
+                "summary": "Add actor",
+                "description": "Add actor to the Series with the specified ID",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Subscription",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Series ID - Title of the series in CamelCase format",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Actor JSON Object",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Actor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "404": {
+                        "description": "Series not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "series",
+                    "actors"
+                ],
+                "summary": "Delete actors",
+                "description": "Delete all actors from the Series with the specified ID",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Subscription",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Title of the Series",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                        },
+                    "404": {
+                        "description": "Series not found"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Series": {
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "Title"
+                },
+                "seasons": {
+                    "type": "integer",
+                    "description": "Total seasons"
+                },
+                "episodes": {
+                    "type": "integer",
+                    "description": "Total episodes"
+                },
+                "year": {
+                    "type": "integer",
+                    "description": "Release Year"
+                },
+                "creator": {
+                    "type": "string",
+                    "description": "Creator"
+                }
+            }
+        },
+        "Actor": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name"
+                },
+                "surname": {
+                    "type": "string",
+                    "description": "Surname"
+                },
+                "gender": {
+                    "type": "string",
+                    "description": "Gender"
+                },
+                "birthday": {
+                    "type": "string",
+                    "description": "Year of birth"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "Homeland"
+                }
+            }
+        }
+    }
+}
