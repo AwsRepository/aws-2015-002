@@ -1,19 +1,31 @@
 package es.us.aws;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.jasper.tagplugins.jstl.core.Set;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilter;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.apphosting.datastore.DatastoreV4.GqlQuery;
 
 public class SeriesPersistence {
 		
@@ -55,16 +67,53 @@ public class SeriesPersistence {
 	 
 	}
 	
-	public static List<Series> selectAllSeries(){
+	public static List<Series> selectAllSeries(Map<String,String> params){
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		
+		int offset =  0;
+		int limit =  1000;//MAX
+		
+		if(params.containsKey("offset")){
+			offset = Integer.parseInt(params.get("offset"));
+		}
+		if(params.containsKey("limit")){
+			limit = Integer.parseInt(params.get("limit"));
+		}
+		
 	    Query query = new Query("Series");
+	    
+	    //Problems with CompositeFilter
+	    //ERROR con los parentesis en Query
+	    //ERROR PARENTESIS --> SELECT * FROM Series WHERE (from >= 2010 AND to <= 2012)
+	    //Only one inequality filter per query is supported.
+	    
+	    
+	    if(params.containsKey("from")){
+			Filter yearFromFilter = new FilterPredicate("year", 
+														FilterOperator.GREATER_THAN_OR_EQUAL,
+														Integer.parseInt(params.get("from")));
+			query.setFilter(yearFromFilter);
+		}
+	   
 	    PreparedQuery pq = datastore.prepare(query);
-		Iterable <Entity> it = pq.asIterable();
+		Iterable <Entity> it = pq.asIterable(FetchOptions.Builder.withLimit(limit).offset(offset));
+		
+		boolean withoutActors = params.containsKey("withActors") && params.get("withActors").equalsIgnoreCase("false");
+		boolean withActors = params.containsKey("withActors") && params.get("withActors").equalsIgnoreCase("true");
+		
+		
 		List<Series> series = new LinkedList<Series>();
 		
 		for(Entity e:it){
 			Series s = entityToSeries(e);
-			series.add(s);
+			String key = toCamelCase(s.getTitle());
+			
+			if(withoutActors && selectSeriesActors(key,params).size()==0)
+				series.add(s);
+			else if(withActors && selectSeriesActors(key,params).size()>0)
+				series.add(s);
+			else if (!withoutActors && !withActors)
+				series.add(s);
 		}
 		
 		return series;
@@ -102,15 +151,26 @@ public class SeriesPersistence {
         datastore.delete(series.getKey());
 	}
 	
-	public static List<Actor> selectSeriesActors(String key){
+	public static List<Actor> selectSeriesActors(String key, Map<String,String> params){
 		List<Actor> actors = new LinkedList<Actor>(); 
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+		
+		int offset =  0;
+		int limit =  1000;//MAX
+		
+		if(params.containsKey("offset")){
+			offset = Integer.parseInt(params.get("offset"));
+		}
+		if(params.containsKey("limit")){
+			limit = Integer.parseInt(params.get("limit"));
+		}
+		
 		Key seriesKey = KeyFactory.createKey("Series", key);
 		Query query = new Query("Actor").setAncestor(seriesKey);
 		PreparedQuery pq = datastore.prepare(query);
-		Iterator<Entity> it = pq.asIterator();
-		while(it.hasNext()){
-			Entity e = it.next();
+		Iterable<Entity> it =  pq.asIterable(FetchOptions.Builder.withLimit(limit).offset(offset));
+		
+		for(Entity e:it){
 			Actor a = entityToActor(e);
 			actors.add(a);
 		}
@@ -161,7 +221,6 @@ public class SeriesPersistence {
 		while(it.hasNext()){
 			Entity e = it.next();
 			datastore.delete(e.getKey());
-			//TODO delete Actors
 		}
 	}
 	
@@ -220,15 +279,5 @@ public class SeriesPersistence {
 	               s.substring(1).toLowerCase();
 	}
 	
-	public static List paginate(List list, int limit, int offset){
-		int length = list.size();
-		int first = 0;
-		int last = length;
-		if(offset<length)
-			first=offset;
-		if(offset+limit<length)
-			last=offset+limit;
-		return list.subList(first, last);
-	}
 	
 }

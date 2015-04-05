@@ -2,7 +2,7 @@ package es.us.servlets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -188,31 +188,9 @@ public class SeriesServlet extends HttpServlet {
 	private void getAllSeries(HttpServletRequest req, HttpServletResponse resp){
 		try {
 			
+			Map<String,String> params = getSearchParameters(req, resp);
 			
-			List<Series> series = SeriesPersistence.selectAllSeries();
-			int length = series.size();
-			int first = 0;
-			int last = length;
-			
-			int offset =  first;
-			int limit =  last;
-			
-			if(req.getParameter("offset")!=null){
-				offset = Integer.parseInt(req.getParameter("offset"));
-				if (offset<length)
-					first=offset;
-				else
-					first=last;
-			}
-			if(req.getParameter("limit")!=null){
-				limit = Integer.parseInt(req.getParameter("limit"));
-				if (offset+limit<length)
-					last=offset+limit;
-					
-			}
-			
-			
-			String jsonString = gson.toJson(series.subList(first, last));
+			String jsonString = gson.toJson(SeriesPersistence.selectAllSeries(params));
 			
 			resp.setContentType("text/json");
 			resp.getWriter().println(jsonString);
@@ -314,27 +292,9 @@ public class SeriesServlet extends HttpServlet {
 	private void getActors(String series, HttpServletRequest req, HttpServletResponse res){
 		try{
 						
-			List<Actor> actors = SeriesPersistence.selectSeriesActors(series);
-			int length = actors.size();
-			int first = 0;
-			int last = length;
+			Map<String,String> params = getSearchParameters(req, res);
 			
-			int offset =  first;
-			int limit =  last;
-			
-			if(req.getParameter("offset")!=null){
-				offset = Integer.parseInt(req.getParameter("offset"));
-				if (offset<length)
-					first=offset;
-			}
-			if(req.getParameter("limit")!=null){
-				limit = Integer.parseInt(req.getParameter("limit"));
-				if (offset+limit<length)
-					last=offset+limit;
-			}
-			
-			
-			String jsonString = gson.toJson(actors.subList(first, last));
+			String jsonString = gson.toJson(SeriesPersistence.selectSeriesActors(series,params));
 			res.setContentType("text/json");
 			res.getWriter().println(jsonString);
 		}
@@ -347,6 +307,27 @@ public class SeriesServlet extends HttpServlet {
 	//Borra todos los actores de la serie
 	private void deleteActors(String series, HttpServletRequest req, HttpServletResponse res){
 		SeriesPersistence.deleteSeriesActors(series);
+	}
+	
+	private Map<String,String> getSearchParameters(HttpServletRequest req, HttpServletResponse res){
+		
+		Map<String,String> params = new HashMap<String, String>();
+		
+		if(req.getParameter("withActors")!=null){
+			params.put("withActors", req.getParameter("withActors"));
+		}
+		if(req.getParameter("from")!=null){
+			params.put("from", req.getParameter("from"));
+		}
+		if(req.getParameter("limit")!=null){
+			params.put("limit", req.getParameter("limit"));
+		}
+		if(req.getParameter("offset")!=null){
+			params.put("offset", req.getParameter("offset"));
+		}
+		
+		
+		return params;
 	}
 	   
 }
