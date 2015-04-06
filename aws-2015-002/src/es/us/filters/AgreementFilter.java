@@ -42,7 +42,6 @@ public class AgreementFilter implements Filter {
             LOG.log(Level.INFO, "Request accepted");
         } else {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            resp.sendRedirect("/error.html");
             LOG.log(Level.INFO, "Request rejected");
         }
     }

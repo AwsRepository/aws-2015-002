@@ -1,0 +1,460 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Series server - Gr. 2 - AWS 2015",
+        "version": "1.0.0",
+        "title": "Series API",
+        "termsOfService": "http://aws-002.appspot.com/agreements",
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "host": "aws-002.appspot.com",
+    "schemes": [
+        "http"
+    ],
+    "paths": {
+        "/series": {
+          "get": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Listado de Series",
+                "description": "Devuelve un JSON con los datos de las series almacenadas en el sistema.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters":[
+                	{
+                        "in": "query",
+                        "name": "user",
+                        "description": "Tipo de perfil",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Paginación: Limita el número de resultados devueltos.",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Paginación: Oculta los n primeros resultados, donde n es el valor de offset.",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "in": "query",
+                        "name": "withActors",
+                        "description": "Búsqueda: Si toma el valor de cierto (true) mostrará sólo aquellas Series con actores asociados, en si por el contrario toma el valor de falso (false) mostrará solo aquellas Series sin actores asociados en el sistema.",
+                        "required": false,
+                        "type":"string",
+                        "default":"",
+                        "enum":["","true","false"]
+                    },
+                    {
+                        "in": "query",
+                        "name": "from",
+                        "description": "Búsqueda: Año de estreno, si se le pasa como parámetro filtrará los resultados mostrando sólo aquellas series cuyo estreno se produjo en dicho año o posteriores.",
+                        "required": false,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operación satisfactoria",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Series"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error Interno"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Añadir serie",
+                "description": "Añade una nueva serie al sistema",
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                	{
+                        "in": "query",
+                        "name": "user",
+                        "description": "Tipo de perfil",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "JSON de Series",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Series"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Éxito"
+                    },
+                    "409": {
+                        "description": "Conflicto: ya existe una serie con dicho título almacenada en el sitema"
+                    },
+                    "500": {
+                        "description": "Error interno."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Eliminar series",
+                "description": "Elimina todas las series registradas en el sistema", 
+                "parameters": [
+                	{
+                        "in": "query",
+                        "name": "user",
+                        "description": "Tipo de perfil",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Éxito"
+                    }
+                },
+                
+            }
+        },
+        "/series/{seriesid}": {
+            "get": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Obtener serie",
+                "description": "Devuelve un JSOn con la información de la serie cuyo identificador se pasa como parámetro",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Tipo de perfil",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Series ID - Title of the series in CamelCase format",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Éxito.",
+                        "schema": {
+                            "$ref": "#/definitions/Series"
+                        }
+                    },
+                    "404": {
+                        "description": "Serie no encontrada."
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Actualizar serie",
+                "description": "Actualiza los datos de la serie cuyo identificador se pasa como parámetro, el título de la serie en el JSON debe coincidir con el original para que la modificación sea satisfactoria.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Tipo de perfil",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Identificador de la serie",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Objeto JSON de Series",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Series"
+                        }
+                    }
+                ],
+                "responses": {
+                  	"200": {
+                        "description": "Éxito"
+                        },
+                    "400": {
+                        "description": "Petición incorrecta: el nombre de la serie no coincide con el original registrado en el sistema"
+                    },
+                    "404": {
+                        "description": "Serie no encontrada"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "series"
+                ],
+                "summary": "Eliminar serie",
+                "description": "Elimina la serie cuyo identificador se pasa como parámetro.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Tipo de perfil",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Identificador de la serie",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Éxito"
+                        },
+                    "404": {
+                        "description": "Serie no encontrada."
+                    }
+                }
+            }
+        }
+        ,
+        "/series/{seriesid}/actors": {
+            "get": {
+                "tags": [
+                    "series",
+                    "actors"
+                ],
+                "summary": "Reparto",
+                "description": "Devuelve un JSON con la información de los actores asociados a la serie en el sistema.",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Tipo de perfil",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Identificador de la serie",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "description": "Paginación: Limita el número de resultados devueltos.",
+                        "required": false,
+                        "type": "number"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "description": "Paginación: Oculta los n primeros resultados, donde n es el valor de offset.",
+                        "required": false,
+                        "type": "number"
+                    },
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Éxito",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Actor"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Serie no encontrada"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "series",
+                    "actors"
+                ],
+                "summary": "Añadir actor",
+                "description": "Añade a la serie, cuyo identificador se pasa como parámetro, un nuevo actor.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Tipo de perfil",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Identificador de la serie",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "description": "Objeto JSON con los datos del actor",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Actor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Éxito"
+                    },
+                    "404": {
+                        "description": "Serie no encontrada."
+                    },
+                    "500": {
+                        "description": "Error interno."
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "series",
+                    "actors"
+                ],
+                "summary": "Eliminar actores",
+                "description": "Elimina todos los actores de la serie cuyo identificador se pasa como parámetro",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "user",
+                        "description": "Tipo de perfil",
+                        "required": true,
+                        "type":"string",
+                        "default":"freeUser",
+                        "enum":["freeUser","silverUser","goldUser"]
+                    },
+                    {
+                        "in": "path",
+                        "name": "seriesid",
+                        "description": "Identificador de la serie",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Éxito."
+                        },
+                    "404": {
+                        "description": "Serie no encontrada."
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Series": {
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "Título"
+                },
+                "seasons": {
+                    "type": "integer",
+                    "description": "Temporadas"
+                },
+                "episodes": {
+                    "type": "integer",
+                    "description": "Episodios"
+                },
+                "year": {
+                    "type": "integer",
+                    "description": "Año de estreno"
+                },
+                "creator": {
+                    "type": "string",
+                    "description": "Creador"
+                }
+            }
+        },
+        "Actor": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Nombre"
+                },
+                "surname": {
+                    "type": "string",
+                    "description": "Apellidos"
+                },
+                "gender": {
+                    "type": "string",
+                    "description": "Género"
+                },
+                "birthday": {
+                    "type": "string",
+                    "description": "Año de nacimiento"
+                },
+                "country": {
+                    "type": "string",
+                    "description": "País de origen"
+                }
+            }
+        }
+    }
+}

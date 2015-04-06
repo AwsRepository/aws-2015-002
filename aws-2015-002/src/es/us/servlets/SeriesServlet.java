@@ -35,7 +35,6 @@ public class SeriesServlet extends HttpServlet {
 		Series s2 = new Series("Breaking Bad","Vince Gilligan",5,62,2008);
 		Series s3 = new Series("House of cards","Beau Willimon",3,39,2010);
 
-		
 		SeriesPersistence.insertSeries(s1);
 		SeriesPersistence.insertSeries(s2);
 		SeriesPersistence.insertSeries(s3);
@@ -61,8 +60,6 @@ public class SeriesServlet extends HttpServlet {
 		log("End init");
 		
 	}
-
-	//Métodos HTTP - Copiamos la idea del ejemplo de clase, el código queda mucho más legible
 	
 	public void doGet (HttpServletRequest req, HttpServletResponse res) {
 		process(req,res);
@@ -100,7 +97,7 @@ public class SeriesServlet extends HttpServlet {
 			
 			if(pathError)//Ruta demasiado larga
 			{ 
-				res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				return;
 			}
 			else if (allActors){
@@ -166,7 +163,6 @@ public class SeriesServlet extends HttpServlet {
 		}
 	}
 	
-	//Crear nueva serie
 	private void postSeries(HttpServletRequest req, HttpServletResponse resp){
 		
 		try{
@@ -197,7 +193,6 @@ public class SeriesServlet extends HttpServlet {
 		
 	}
 	
-	//Listado de series
 	private void getAllSeries(HttpServletRequest req, HttpServletResponse resp){
 		try {
 			
@@ -215,12 +210,10 @@ public class SeriesServlet extends HttpServlet {
 		}
 	}
 	
-	//Borrar todas las series
 	private void deleteAllSeries(HttpServletRequest req, HttpServletResponse resp){
 		SeriesPersistence.deleteAllSeries();
 	}
 	
-	//Obtener serie
 	private void getSeries(String series, HttpServletRequest req, HttpServletResponse res){
 		String jsonString = gson.toJson(SeriesPersistence.selectSeries(series));
 		res.setContentType("text/json");
@@ -306,8 +299,6 @@ public class SeriesServlet extends HttpServlet {
 		}
 	}
 	
-	
-	//Añade un nuevo actor a la serie
 	private void postActor(String series, HttpServletRequest req, HttpServletResponse res){
 		try{
 			Actor a = new Actor();
@@ -322,15 +313,12 @@ public class SeriesServlet extends HttpServlet {
 			
 			a = gson.fromJson(jsonString, Actor.class);
 			
-			
 			if(!SeriesPersistence.existsActorPost(a, series)){
 				SeriesPersistence.insertSeriesActor(a, series);
 			}
 			else{
 				res.setStatus(HttpServletResponse.SC_CONFLICT);
 			}
-			
-			
 		}
 		catch(Exception e){
 			res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -338,7 +326,6 @@ public class SeriesServlet extends HttpServlet {
 		}
 	}
 	
-	//Obtiene la lista de actores de la serie
 	private void getActors(String series, HttpServletRequest req, HttpServletResponse res){
 		try{
 						
@@ -354,8 +341,6 @@ public class SeriesServlet extends HttpServlet {
 		}
 	}
 
-	
-	//Borra todos los actores de la serie
 	private void deleteActors(String series, HttpServletRequest req, HttpServletResponse res){
 		SeriesPersistence.deleteSeriesActors(series);
 	}
@@ -376,7 +361,6 @@ public class SeriesServlet extends HttpServlet {
 		if(req.getParameter("offset")!=null){
 			params.put("offset", req.getParameter("offset"));
 		}
-		
 		
 		return params;
 	}
