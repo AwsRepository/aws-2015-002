@@ -1,15 +1,9 @@
 package es.us.aws;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.jasper.tagplugins.jstl.core.Set;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
@@ -19,24 +13,21 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
-import com.google.appengine.api.datastore.Query.CompositeFilter;
-import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
-import com.google.appengine.api.datastore.Query.SortDirection;
-import com.google.apphosting.datastore.DatastoreV4.GqlQuery;
 
 public class SeriesPersistence {
 		
 	public static void insertSeries(Series s){
-	    Entity series = seriesToEntity(s);
-
+	    
+		Entity series = seriesToEntity(s);
 	    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    datastore.put(series); 
 	}
 	
 	public static Series selectSeries(String key){
+		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    Key seriesKey = KeyFactory.createKey("Series", key);
 	    Query query = new Query("Series", seriesKey);
@@ -44,7 +35,6 @@ public class SeriesPersistence {
 		Entity e = pq.asSingleEntity();
 	    Series series = entityToSeries(e);
 		return series;
-	    
 	}
 	
 	public static boolean existsSeries(String key){
@@ -54,7 +44,6 @@ public class SeriesPersistence {
 	    Query query = new Query("Series", seriesKey);
 	    PreparedQuery pq = datastore.prepare(query);
 		return pq.asSingleEntity()!=null;
-	 
 	}
 	
 	public static boolean existsActor(String key){
@@ -64,7 +53,6 @@ public class SeriesPersistence {
 	    Query query = new Query("Actor", actorKey);
 	    PreparedQuery pq = datastore.prepare(query);
 		return pq.asSingleEntity()!=null;
-	 
 	}
 	
 	public static boolean existsSeriesPost(String key){
@@ -73,8 +61,7 @@ public class SeriesPersistence {
 	    Key seriesKey = KeyFactory.createKey("Series", toCamelCase(key));
 	    Query query = new Query("Series", seriesKey);
 	    PreparedQuery pq = datastore.prepare(query);
-		return pq.asSingleEntity()!=null;
-	 
+		return pq.asSingleEntity()!=null; 
 	}
 	
 	public static List<Series> selectAllSeries(Map<String,String> params){
@@ -110,7 +97,6 @@ public class SeriesPersistence {
 		
 		boolean withoutActors = params.containsKey("withActors") && params.get("withActors").equalsIgnoreCase("false");
 		boolean withActors = params.containsKey("withActors") && params.get("withActors").equalsIgnoreCase("true");
-		
 		
 		List<Series> series = new LinkedList<Series>();
 		
@@ -243,7 +229,7 @@ public class SeriesPersistence {
 		Entity seriesEntity = new Entity("Series", toCamelCase(series.getTitle()));
 		seriesEntity.setProperty("title", series.getTitle());
 		seriesEntity.setProperty("creator", series.getCreator());
-		seriesEntity.setProperty("seasons", series.getEpisodes());
+		seriesEntity.setProperty("seasons", series.getSeasons());
 		seriesEntity.setProperty("episodes", series.getEpisodes());
 		seriesEntity.setProperty("year", series.getYear());
 		return seriesEntity;
@@ -295,20 +281,20 @@ public class SeriesPersistence {
 	}
 	
 	public static Actor selectActor(String key){
+		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    Key actorKey = KeyFactory.createKey("Actor", key);
 	    Query query = new Query("Actor", actorKey);
 	    PreparedQuery pq = datastore.prepare(query);
 		Entity e = pq.asSingleEntity();
 	    Actor actor = entityToActor(e);
-		return actor;
-	    
+		return actor;    
 	}
 
 	public static boolean existsActorPost(Actor a, String series) {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Key seriesKey = KeyFactory.createKey("Series", series);
-	    Key actorKey = KeyFactory.createKey("Actor", toCamelCase(a.getName()+a.getSurname()));
+	    Key actorKey = KeyFactory.createKey("Actor", toCamelCase(a.getName()+" "+a.getSurname()));
 	    FilterPredicate filter = new FilterPredicate(Entity.KEY_RESERVED_PROPERTY, FilterOperator.EQUAL, actorKey);
 		
 	    Query query = new Query("Actor").setAncestor(seriesKey);
