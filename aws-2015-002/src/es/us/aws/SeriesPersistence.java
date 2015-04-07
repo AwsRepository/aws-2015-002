@@ -125,7 +125,7 @@ public class SeriesPersistence {
 		PreparedQuery pq = datastore.prepare(query);
 		Entity series = pq.asSingleEntity();
 		
-		if(!s.getTitle().equals(key)){
+		if(!(toCamelCase(s.getTitle()).equals(key))){
 			
 		}
 		else{
