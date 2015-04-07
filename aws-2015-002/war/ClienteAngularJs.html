@@ -1,0 +1,164 @@
+<html ng-app="myServiceModule">
+	<head>
+
+		<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-beta.6/angular.min.js"></script>
+		<script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.12.1.js"></script>
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+		<script src="bower_components/angular-resource/angular-resource.js"></script>
+		<link href="style.css" rel="stylesheet" />
+
+	</head>
+	<body >
+
+		<div id="simple" ng-controller="MyController">
+
+			<div id="mainDiv">
+				<div id="left">
+
+					<div id="allSeries">
+						</br>
+						<button ng-model="collapsed" ng-click="collapsed=!collapsed">
+							Show All Series
+						</button>
+						</br>
+						</br>
+
+						<div  ng-show="collapsed">
+
+							<div class="well well-lg">
+								<table>
+									<tr>
+										<td> Title </td>
+										<td> Director </td>
+										<td> Seasons </td>
+										<td> Episodes </td>
+										<td> Year </td>
+									</tr>
+
+									<tr ng-repeat="serie in series  | orderBy:'title'">
+										<td>{{serie.title}}</td>
+										<td>{{serie.creator}}</td>
+										<td>{{serie.seasons}}</td>
+										<td>{{serie.episodes}}</td>
+										<td>{{serie.year}}</td>
+
+									</tr>
+
+								</table>
+
+							</div>
+
+							</br>
+							<button  ng-click="updated()">
+								Updated Series
+							</button>
+
+							</br>
+						</div>
+
+					</div>
+
+					<div id="viewGet">
+						</br>
+						<input type="text" ng-init="inGet='BreakingBad'" ng-model="inGet" >
+						</input>
+
+						<button  ng-click="clickGet()">
+							Leer
+						</button>
+						</br></br>
+						<div class="well well-lg">
+
+							<table>
+								<tr>
+									<td> Title </td>
+									<td> Director </td>
+									<td> Seasons </td>
+									<td> Episodes </td>
+									<td> Year </td>
+								</tr>
+
+								<tr>
+									<td>{{salidaGet.title}}</td>
+									<td>{{salidaGet.creator}}</td>
+									<td>{{salidaGet.seasons}}</td>
+									<td>{{salidaGet.episodes}}</td>
+									<td>{{salidaGet.year}}</td>
+
+								</tr>
+
+							</table>
+						</div>
+					</div>
+
+				</div>
+
+				<div id="viewDelete">
+					</br>
+					<input type="text" ng-init="inDelete='BreakingBad'" ng-model="inDelete" >
+					</input>
+					<button  ng-click="clickDelete()">
+						Borrar
+					</button>
+					</br></br>
+				</div>
+
+				<div id="viewPost">
+					</br>
+					<button ng-model="collapsed2" ng-click="collapsed2=!collapsed2">
+						Show Create
+					</button>
+					</br></br>
+					<div ng-show="collapsed2" class="well well-lg">
+
+						</br>
+						Title:
+						</br>
+						<input  ng-model="fTitle">
+						</input>
+
+						</br>
+
+						Creator:
+						</br>
+						<input  ng-model="fCreator">
+						</input>
+
+						</br>
+						Seasons:
+						</br>
+						<input  ng-model="fSeasons">
+						</input>
+
+						</br>
+						Episodes:
+						</br>
+						<input  ng-model="fEpisodes">
+						</input>
+
+						</br>
+						Year:
+						</br>
+						<input  ng-model="fYear">
+						</input>
+						</br>
+						</br>
+						<button  ng-click="clickPost()">
+							Add
+						</button>
+					</div>
+
+				</div>
+
+				<div id="viewPut">
+
+				</div>
+
+			</div>
+			<script type="text/javascript" src="lib/angular-resource.min.js"></script>
+			<script src="service.js"></script>
+
+		</div>
+
+	</body>
+</html>
